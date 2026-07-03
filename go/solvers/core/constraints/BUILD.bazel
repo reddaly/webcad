@@ -1,0 +1,49 @@
+load("@rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "constraints",
+    srcs = [
+        "angle.go",
+        "coincidence.go",
+        "concentric.go",
+        "distance.go",
+        "evaluator.go",
+        "fixed.go",
+        "midpoint.go",
+        "parallel.go",
+        "perpendicular.go",
+        "registry.go",
+        "symmetric.go",
+        "tangent.go",
+        "utils.go",
+    ],
+    importpath = "github.com/gonzojive/webcad/go/solvers/core/constraints",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//schema",
+        "@org_gonum_v1_gonum//mat",
+    ],
+)
+
+go_test(
+    name = "constraints_test",
+    srcs = [
+        "angle_test.go",
+        "coincidence_test.go",
+        "concentric_test.go",
+        "distance_test.go",
+        "fixed_test.go",
+        "midpoint_test.go",
+        "parallel_test.go",
+        "perpendicular_test.go",
+        "symmetric_test.go",
+        "tangent_test.go",
+    ],
+    deps = [
+        ":constraints",
+        "//go/solvers/core",
+        "//schema",
+        "@org_gonum_v1_gonum//diff/fd",
+        "@org_gonum_v1_gonum//mat",
+    ],
+)

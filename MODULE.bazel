@@ -6,6 +6,7 @@ module(
 bazel_dep(name = "rules_go", version = "0.61.1")
 bazel_dep(name = "gazelle", version = "0.51.3")
 bazel_dep(name = "protobuf", version = "33.4")
+bazel_dep(name = "rules_proto", version = "7.1.0")
 
 # Configure the Go SDK
 go_sdk = use_extension("@rules_go//go:extensions.bzl", "go_sdk")
@@ -14,7 +15,7 @@ go_sdk.download(version = "1.25.0")
 # Configure Gazelle to use go.mod
 go_deps = use_extension("@gazelle//:extensions.bzl", "go_deps")
 go_deps.from_file(go_mod = "//:go.mod")
-use_repo(go_deps)
+use_repo(go_deps, "org_golang_google_protobuf", "org_gonum_v1_gonum")
 
 bazel_dep(name = "rules_rust", version = "0.71.3")
 

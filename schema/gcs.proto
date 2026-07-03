@@ -1,0 +1,344 @@
+syntax = "proto3";
+
+package webcad;
+
+option go_package = "github.com/gonzojive/webcad/schema";
+
+// Supported geometry types in webcad.
+enum EntityType {
+  // Default unknown type.
+  ENTITY_UNKNOWN = 0;
+  // A 2D point defined by X and Y coordinates.
+  ENTITY_POINT = 1;
+  // A line segment defined by start and end points.
+  ENTITY_LINE = 2;
+  // A circle defined by center point and radius.
+  ENTITY_CIRCLE = 3;
+  // An arc defined by center, radius, start angle, and end angle.
+  ENTITY_ARC = 4;
+  // An ellipse defined by center, major/minor axes, and orientation.
+  ENTITY_ELLIPSE = 5;
+  // A parametric spline curve.
+  ENTITY_SPLINE = 6;
+}
+
+// A 2D point entity.
+message PointEntity {
+  // The X coordinate of the point.
+  double x = 1;
+  // The Y coordinate of the point.
+  double y = 2;
+}
+
+// A line segment entity defined by its start and end coordinates.
+message LineEntity {
+  // The X coordinate of the start point.
+  double x1 = 1;
+  // The Y coordinate of the start point.
+  double y1 = 2;
+  // The X coordinate of the end point.
+  double x2 = 3;
+  // The Y coordinate of the end point.
+  double y2 = 4;
+}
+
+// A circle entity defined by its center and radius.
+message CircleEntity {
+  // The X coordinate of the center.
+  double cx = 1;
+  // The Y coordinate of the center.
+  double cy = 2;
+  // The radius of the circle.
+  double r = 3;
+}
+
+// An arc entity defined by its center, radius, and angular span.
+message ArcEntity {
+  // The X coordinate of the center.
+  double cx = 1;
+  // The Y coordinate of the center.
+  double cy = 2;
+  // The radius of the arc.
+  double r = 3;
+  // The start angle of the arc, in radians.
+  double start_angle = 4;
+  // The end angle of the arc, in radians.
+  double end_angle = 5;
+}
+
+// An ellipse entity defined by its center, major/minor radii, and rotation.
+message EllipseEntity {
+  // The X coordinate of the center.
+  double cx = 1;
+  // The Y coordinate of the center.
+  double cy = 2;
+  // The major radius (semi-major axis).
+  double rx = 3;
+  // The minor radius (semi-minor axis).
+  double ry = 4;
+  // The rotation angle of the major axis, in radians.
+  double theta = 5;
+}
+
+// A B-spline curve entity (placeholder for future implementation).
+message SplineEntity {
+  // Flat list of control point coordinates [x1, y1, x2, y2, ...].
+  repeated double control_points = 1;
+  // The degree of the spline curve.
+  int32 degree = 2;
+  // The knot vector of the spline.
+  repeated double knots = 3;
+}
+
+// The generic Entity wrapper using a oneof to enforce type safety.
+message Entity {
+  // Unique identifier for the entity (e.g., "p1", "l1").
+  string id = 1;
+  
+  // The specific entity type and its parameters.
+  oneof entity_type {
+    PointEntity point = 2;
+    LineEntity line = 3;
+    CircleEntity circle = 4;
+    ArcEntity arc = 5;
+    EllipseEntity ellipse = 6;
+    SplineEntity spline = 7;
+  }
+}
+
+// Specific constraint definitions for type safety and clarity.
+
+// Constrains two entities (typically points, or a point and a line) to be coincident.
+message CoincidenceConstraint {
+  // The ID of the first entity (e.g., a point).
+  string entity_a = 1;
+  // The ID of the second entity (e.g., another point, or a line).
+  string entity_b = 2;
+}
+
+// Constrains the distance between two entities (typically points) to a target value.
+message DistanceConstraint {
+  // The ID of the first entity.
+  string entity_a = 1;
+  // The ID of the second entity.
+  string entity_b = 2;
+  // The target distance value.
+  double value = 3;
+}
+
+// Constrains the angle between two lines to a target value.
+message AngleConstraint {
+  // The ID of the first line.
+  string entity_a = 1;
+  // The ID of the second line.
+  string entity_b = 2;
+  // The target angle in radians.
+  double value_radians = 3;
+}
+
+// Constrains two lines to be parallel.
+message ParallelConstraint {
+  // The ID of the first line.
+  string line_a = 1;
+  // The ID of the second line.
+  string line_b = 2;
+}
+
+// Constrains two lines to be perpendicular.
+message PerpendicularConstraint {
+  // The ID of the first line.
+  string line_a = 1;
+  // The ID of the second line.
+  string line_b = 2;
+}
+
+// Constrains two entities (e.g., line and circle, or circle and circle) to be tangent.
+message TangentConstraint {
+  // The ID of the first entity.
+  string entity_a = 1;
+  // The ID of the second entity.
+  string entity_b = 2;
+}
+
+// Constrains two circular entities (circles/arcs) or a point and a circle to share the same center.
+message ConcentricConstraint {
+  // The ID of the first entity.
+  string entity_a = 1;
+  // The ID of the second entity.
+  string entity_b = 2;
+}
+
+// Constrains two entities to be symmetric about a line.
+message SymmetricConstraint {
+  // The ID of the first symmetric entity.
+  string entity_a = 1;
+  // The ID of the second symmetric entity.
+  string entity_b = 2;
+  // The ID of the line entity acting as the axis of symmetry.
+  string symmetry_line = 3;
+}
+
+// Constrains a point to lie exactly at the midpoint of a line segment.
+message MidpointConstraint {
+  // The ID of the point entity.
+  string point = 1;
+  // The ID of the line segment entity.
+  string line = 2;
+}
+
+// Locks all degrees of freedom of an entity to its current state.
+message FixedConstraint {
+  // The ID of the entity to fix.
+  string entity_id = 1;
+}
+
+// The generic Constraint wrapper using a oneof to enforce type safety.
+message Constraint {
+  // Unique identifier for the constraint (e.g., "c1").
+  string id = 1;
+  
+  // The specific constraint type and its parameters.
+  oneof constraint_type {
+    CoincidenceConstraint coincidence = 2;
+    DistanceConstraint distance = 3;
+    AngleConstraint angle = 4;
+    ParallelConstraint parallel = 5;
+    PerpendicularConstraint perpendicular = 6;
+    TangentConstraint tangent = 7;
+    ConcentricConstraint concentric = 8;
+    SymmetricConstraint symmetric = 9;
+    MidpointConstraint midpoint = 10;
+    FixedConstraint fixed = 11;
+  }
+}
+
+// Defines a global parameter/variable for parametric sketching.
+message Variable {
+  // Unique identifier for the variable.
+  string id = 1;
+  // Human-readable name of the variable (e.g., "width").
+  string name = 2;
+  // The current value of the variable.
+  double value = 3;
+}
+
+// A snapshot of entity parameters for state tracking (initial, expected, or solved).
+message StateSnapshot {
+  // Map of entity ID to its state (parameters).
+  map<string, Entity> entities = 1;
+  // Map of constraint ID to its absolute residual error.
+  map<string, double> constraint_residuals = 2;
+}
+
+// Defines a mouse drag interaction waypoint for warm solving.
+message DragEvent {
+  // The ID of the entity being dragged (typically a point).
+  string entity_id = 1; 
+  
+  // A mapping of the parameter index being dragged to its new value.
+  map<int32, double> param_updates = 2;
+}
+
+// Represents a sequence of drag events to simulate user interaction.
+message WarmSolveScenario {
+  // Unique identifier for the warm solve scenario.
+  string id = 1;
+  // Human-readable name of the scenario.
+  string name = 2;
+  // The sequence of drag waypoints.
+  repeated DragEvent waypoints = 3;
+  // The target frames per second (FPS) the solver must maintain.
+  double target_fps = 4; 
+}
+
+// Mathematical classification of the sketch.
+enum SketchMode {
+  // Default unknown mode.
+  MODE_UNKNOWN = 0;
+  // Well-posed system with exactly zero degrees of freedom (DOF = 0).
+  MODE_FULLY_CONSTRAINED = 1;
+  // Kinematic system with degrees of freedom > 0 (tests dragging/warm-solving).
+  MODE_UNDER_CONSTRAINED = 2;
+  // Redundant constraints present, but they do not conflict.
+  MODE_OVER_CONSTRAINED_CONSISTENT = 3;
+  // Conflicting constraints present (solver must fail).
+  MODE_OVER_CONSTRAINED_INCONSISTENT = 4;
+}
+
+// Represents a complete sketch, including geometry, constraints, and scenarios.
+message Sketch {
+  // Unique identifier for the sketch (e.g., "polygon-5").
+  string id = 1;
+  // Human-readable name of the sketch.
+  string name = 2;
+  // Detailed description of what this sketch represents.
+  string description = 3;
+  
+  // The entities defining the sketch geometry.
+  repeated Entity entities = 4;
+  // The constraints acting on the entities.
+  repeated Constraint constraints = 5;
+  // Global variables used in parametric expressions.
+  repeated Variable variables = 6;
+  
+  // The initial (unsolved or perturbed) state of the sketch.
+  StateSnapshot initial_state = 7;
+  // The expected final (golden) state to verify correctness.
+  StateSnapshot expected_state = 8;
+  
+  // The number of times to repeat the cold solve to average out timing noise.
+  // Replacing the overly complicated ColdSolveScenario message.
+  int32 cold_repeated_trials = 9;
+  
+  // Warm solve (interactive dragging) scenarios.
+  repeated WarmSolveScenario warm_scenarios = 10;
+  
+  // Indicates if the sketch is mathematically expected to successfully solve.
+  bool expected_success = 11;
+  
+  // The mathematical mode of this sketch (Fully, Under, Over).
+  SketchMode mode = 12;
+}
+
+// The result of solving a sketch.
+message SolveResult {
+  // The ID of the sketch that was solved.
+  string sketch_id = 1;
+  // The name of the solver that executed the run.
+  string solver_name = 2;
+  
+  // The average time taken for a cold solve, in milliseconds (averaged over cold_repeated_trials).
+  double cold_solve_time_ms = 3;
+  // The average time taken for a single warm solve step, in milliseconds.
+  double warm_solve_avg_time_ms = 4;
+  // The achieved frames per second (FPS) during warm solving.
+  double warm_solve_fps = 5;
+  
+  // Whether the solver claimed a successful solve.
+  bool success = 6;
+  // The error message returned by the solver if it failed.
+  string error_message = 7;
+  
+  // The maximum mathematical constraint residual (violation) after solving.
+  double max_residual = 8;
+  
+  // The final solved state of the sketch entities.
+  StateSnapshot solved_state = 9;
+  
+  // The L2-norm distance from the solved state to the expected_state (chirality/branch error).
+  // Will be 0 or N/A if no expected_state is defined.
+  double golden_error = 10;
+
+  // The trajectory of intermediate solved states recorded during warm solving.
+  repeated StateSnapshot warm_trajectory = 11;
+
+  // Telemetry metrics from the solver (iterations, evaluations, etc.).
+  SolverTelemetry telemetry = 12;
+}
+
+message SolverTelemetry {
+  int32 iterations = 1;
+  int32 func_evaluations = 2;
+  int32 grad_evaluations = 3;
+  double final_residual = 4;
+}
