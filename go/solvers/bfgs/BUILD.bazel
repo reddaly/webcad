@@ -1,0 +1,23 @@
+load("@rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "bfgs",
+    srcs = ["solver.go"],
+    importpath = "github.com/gonzojive/webcad/go/solvers/bfgs",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//go/solvers/core",
+        "//schema",
+        "@org_golang_google_protobuf//proto",
+        "@org_gonum_v1_gonum//optimize",
+    ],
+)
+
+go_test(
+    name = "bfgs_test",
+    srcs = ["solver_test.go"],
+    embed = [":bfgs"],
+    deps = [
+        "//schema",
+    ],
+)

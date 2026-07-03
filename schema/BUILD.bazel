@@ -1,0 +1,15 @@
+load("@protobuf//bazel:proto_library.bzl", "proto_library")
+load("@rules_go//proto:def.bzl", "go_proto_library")
+
+proto_library(
+    name = "gcs_proto",
+    srcs = ["gcs.proto"],
+    visibility = ["//visibility:public"],
+)
+
+go_proto_library(
+    name = "schema",
+    importpath = "github.com/gonzojive/webcad/schema",
+    proto = ":gcs_proto",
+    visibility = ["//visibility:public"],
+)
