@@ -1,0 +1,15 @@
+load("@rules_go//go:def.bzl", "go_binary")
+
+go_binary(
+    name = "wasm_solver",
+    srcs = ["main.go"],
+    goarch = "wasm",
+    goos = "js",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//go/solvers/bfgs",
+        "//go/solvers/lm",
+        "//proto",
+        "@org_golang_google_protobuf//encoding/protojson",
+    ],
+)

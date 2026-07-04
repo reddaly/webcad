@@ -15,7 +15,7 @@ go_sdk.download(version = "1.25.0")
 # Configure Gazelle to use go.mod
 go_deps = use_extension("@gazelle//:extensions.bzl", "go_deps")
 go_deps.from_file(go_mod = "//:go.mod")
-use_repo(go_deps, "bazel_gazelle_go_repository_config", "org_golang_google_protobuf", "org_gonum_v1_gonum")
+use_repo(go_deps, "org_golang_google_protobuf", "org_gonum_v1_gonum")
 
 bazel_dep(name = "rules_rust", version = "0.71.3")
 bazel_dep(name = "rules_rust_wasm_bindgen", version = "0.71.3")

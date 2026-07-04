@@ -1,0 +1,13 @@
+{
+  "name": "@webcad/gcsapi",
+  "version": "0.1.0",
+  "description": "Geometric Constraint Solver API wrapping Go WASM",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
