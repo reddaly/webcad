@@ -2,7 +2,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"syscall/js"
 
@@ -20,7 +19,7 @@ func main() {
 // and an algorithm, minimizes the geometric error, and returns the solved JSON state.
 func solveGCS(this js.Value, args []js.Value) interface{} {
 	if err := validateArgs(args); err != nil {
-		return errorJSON(err.Error())
+		return solver.EncodeError(err.Error())
 	}
 
 	inputJSON := args[0].String()
@@ -50,28 +49,17 @@ func parseAlgorithm(args []js.Value) solver.SolverAlgorithm {
 // processSolveRequest deserializes the JSON sketch state, invokes the core
 // Go geometric constraint solver, and serializes the result back to JSON.
 func processSolveRequest(inputJSON string, algo solver.SolverAlgorithm) string {
-	var state solver.SketchState
-	if err := json.Unmarshal([]byte(inputJSON), &state); err != nil {
-		return errorJSON(fmt.Sprintf("Invalid input JSON: %v", err))
+	state, err := solver.DecodeSketchState(inputJSON)
+	if err != nil {
+		return solver.EncodeError(fmt.Sprintf("Invalid input JSON: %v", err))
 	}
 
 	result := solver.Solve(state, algo)
-	
-	output, err := json.Marshal(result)
+
+	output, err := solver.EncodeResult(result)
 	if err != nil {
-		return errorJSON(fmt.Sprintf("Failed to serialize result: %v", err))
+		return solver.EncodeError(fmt.Sprintf("Failed to serialize result: %v", err))
 	}
 
-	return string(output)
-}
-
-// errorJSON is a helper that generates a serialized JSON SolverResult
-// indicating a failure, encapsulating the provided error message.
-func errorJSON(msg string) string {
-	res := solver.SolverResult{
-		Success: false,
-		Error:   msg,
-	}
-	b, _ := json.Marshal(res)
-	return string(b)
+	return output
 }

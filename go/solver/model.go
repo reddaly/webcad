@@ -1,6 +1,8 @@
 // Package solver provides a geometric constraint solving engine.
 package solver
 
+import "encoding/json"
+
 // EntityID represents a unique identifier for any geometric entity in the sketch.
 type EntityID string
 
@@ -76,4 +78,27 @@ type SolverResult struct {
 	Points  []Point  `json:"points"`
 	Circles []Circle `json:"circles"`
 	Error   string   `json:"error,omitempty"`
+}
+
+// DecodeSketchState parses a JSON string into a SketchState.
+func DecodeSketchState(inputJSON string) (SketchState, error) {
+	var state SketchState
+	err := json.Unmarshal([]byte(inputJSON), &state)
+	return state, err
+}
+
+// EncodeResult serializes a SolverResult into a JSON string.
+func EncodeResult(result *SolverResult) (string, error) {
+	output, err := json.Marshal(result)
+	return string(output), err
+}
+
+// EncodeError creates a serialized JSON SolverResult indicating a failure.
+func EncodeError(msg string) string {
+	res := SolverResult{
+		Success: false,
+		Error:   msg,
+	}
+	b, _ := json.Marshal(res)
+	return string(b)
 }
