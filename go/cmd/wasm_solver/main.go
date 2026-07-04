@@ -29,6 +29,8 @@ func solveGCS(this js.Value, args []js.Value) interface{} {
 	return processSolveRequest(inputJSON, algo)
 }
 
+// validateArgs ensures that the WASM function received the minimum required
+// number of arguments from the JavaScript environment.
 func validateArgs(args []js.Value) error {
 	if len(args) < 1 {
 		return fmt.Errorf("missing arguments: requires at least the JSON sketch state")
@@ -36,6 +38,8 @@ func validateArgs(args []js.Value) error {
 	return nil
 }
 
+// parseAlgorithm extracts the requested solver algorithm from the JavaScript
+// arguments if provided, defaulting to the BFGS algorithm otherwise.
 func parseAlgorithm(args []js.Value) solver.SolverAlgorithm {
 	if len(args) > 1 && args[1].String() == string(solver.AlgorithmLM) {
 		return solver.AlgorithmLM
@@ -43,6 +47,8 @@ func parseAlgorithm(args []js.Value) solver.SolverAlgorithm {
 	return solver.AlgorithmBFGS
 }
 
+// processSolveRequest deserializes the JSON sketch state, invokes the core
+// Go geometric constraint solver, and serializes the result back to JSON.
 func processSolveRequest(inputJSON string, algo solver.SolverAlgorithm) string {
 	var state solver.SketchState
 	if err := json.Unmarshal([]byte(inputJSON), &state); err != nil {
@@ -59,6 +65,8 @@ func processSolveRequest(inputJSON string, algo solver.SolverAlgorithm) string {
 	return string(output)
 }
 
+// errorJSON is a helper that generates a serialized JSON SolverResult
+// indicating a failure, encapsulating the provided error message.
 func errorJSON(msg string) string {
 	res := solver.SolverResult{
 		Success: false,
