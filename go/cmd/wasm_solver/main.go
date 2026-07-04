@@ -1,3 +1,4 @@
+// Package main provides the WebAssembly entry point for the Geometric Constraint Solver.
 package main
 
 import (
@@ -9,12 +10,14 @@ import (
 )
 
 func main() {
-	c := make(chan struct{}, 0)
+	c := make(chan struct{})
 	js.Global().Set("solve_gcs", js.FuncOf(solveGCS))
 	fmt.Println("Go WebAssembly initialized")
 	<-c
 }
 
+// solveGCS is the exported WASM function that receives a JSON sketch state
+// and an algorithm, minimizes the geometric error, and returns the solved JSON state.
 func solveGCS(this js.Value, args []js.Value) interface{} {
 	if len(args) < 1 {
 		return errorJSON("Missing arguments")
