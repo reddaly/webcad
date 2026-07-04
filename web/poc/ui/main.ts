@@ -77,6 +77,7 @@ export class SketchController {
 
         this.model.on('tool-change', () => {
             this.resetDrawingState();
+            this.updateToolbarUI();
         });
 
         // Initialize GCS WASM solver
@@ -108,6 +109,36 @@ export class SketchController {
         this.circleCenterPointId = null;
         this.isDistanceSelectionActive = false;
         this.viewport.clearPreviews();
+    }
+
+    private updateToolbarUI() {
+        const activeTool = this.model.getTool();
+        const tools: ToolMode[] = ['select', 'point', 'line', 'circle'];
+        tools.forEach(t => {
+            const btn = document.getElementById(`btn-${t}`);
+            if (btn) {
+                if (t === activeTool) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            }
+        });
+
+        const hud = document.getElementById('help-hud');
+        if (hud) {
+            let helpText = '';
+            if (activeTool === 'select') {
+                helpText = 'Mode: <span>Select</span>. Click canvas to select or drag entities.';
+            } else if (activeTool === 'point') {
+                helpText = 'Mode: <span>Point</span>. Click canvas to place points.';
+            } else if (activeTool === 'line') {
+                helpText = 'Mode: <span>Line</span>. Click canvas or snap to points to draw lines.';
+            } else if (activeTool === 'circle') {
+                helpText = 'Mode: <span>Circle</span>. Click center point then drag/click radius.';
+            }
+            hud.innerHTML = helpText;
+        }
     }
 
     // --- Entity Snapping ---
