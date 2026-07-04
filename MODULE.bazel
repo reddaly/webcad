@@ -14,7 +14,7 @@ go_sdk.download(version = "1.25.0")
 # Configure Gazelle to use go.mod
 go_deps = use_extension("@gazelle//:extensions.bzl", "go_deps")
 go_deps.from_file(go_mod = "//:go.mod")
-use_repo(go_deps)
+use_repo(go_deps, "org_gonum_v1_gonum")
 
 bazel_dep(name = "rules_rust", version = "0.71.3")
 
@@ -42,10 +42,10 @@ crate.from_cargo(
     ],
 )
 crate.annotation(
-    crate = "yeslogic-fontconfig-sys",
     build_script_env = {
         "RUST_FONTCONFIG_DLOPEN": "1",
     },
+    crate = "yeslogic-fontconfig-sys",
 )
 crate.annotation(
     crate = "font-kit",

@@ -1,0 +1,12 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "solver",
+    srcs = [
+        "model.go",
+        "solver.go",
+    ],
+    importpath = "github.com/gonzojive/webcad/go/solver",
+    visibility = ["//visibility:public"],
+    deps = ["@org_gonum_v1_gonum//optimize"],
+)

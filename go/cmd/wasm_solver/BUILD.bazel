@@ -1,0 +1,17 @@
+load("@rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "wasm_solver_lib",
+    srcs = ["main.go"],
+    importpath = "github.com/gonzojive/webcad/go/cmd/wasm_solver",
+    visibility = ["//visibility:private"],
+    deps = ["//go/solver"],
+)
+
+go_binary(
+    name = "wasm_solver",
+    embed = [":wasm_solver_lib"],
+    goarch = "wasm",
+    goos = "js",
+    visibility = ["//visibility:public"],
+)
